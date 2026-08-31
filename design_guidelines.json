@@ -1,0 +1,151 @@
+{
+  "theme": "dark",
+  "project_name": "BakchodAI",
+  "vibe": "Indian Gen-Z internet culture meets Neo-Brutalist Hacker. Kaam ka nahi, par kaafi kaam ka. Unserious, raw, chaotic-good, high-contrast, meme-heavy.",
+  "typography": {
+    "fonts": {
+      "headings": "Cabinet Grotesk, Bebas Neue, sans-serif",
+      "body": "IBM Plex Mono, monospace",
+      "accents": "Caveat, cursive"
+    },
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl+ font-black tracking-tighter uppercase leading-none",
+      "h2": "text-3xl sm:text-4xl font-bold tracking-tight uppercase",
+      "h3": "text-xl sm:text-2xl font-bold",
+      "body": "text-base font-medium leading-relaxed font-mono",
+      "small_labels": "text-xs font-bold tracking-[0.2em] uppercase font-mono"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=Caveat:wght@700&display=swap');",
+      "@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@900,800,700&display=swap');"
+    ]
+  },
+  "colors": {
+    "archetype": "Neo-Brutalist Desi Pop (Electric & Neon + Swiss High-Contrast)",
+    "background": {
+      "default": "#0A0A0A",
+      "surface": "#141414",
+      "surface_elevated": "#1F1F1F"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#71717A"
+    },
+    "brand": {
+      "primary": "#FF3B30",
+      "primary_hover": "#FF5247",
+      "taxi_yellow": "#FFCC00",
+      "tapri_blue": "#00E5FF",
+      "mirchi_green": "#34C759"
+    },
+    "borders": {
+      "default": "rgba(255, 255, 255, 0.15)",
+      "strong": "rgba(255, 255, 255, 1)",
+      "accent": "#FFCC00"
+    }
+  },
+  "visual_enhancers": {
+    "borders": "Strictly 2px solid for primary components. No soft rounded corners. Use rounded-none or rounded-sm max.",
+    "shadows": {
+      "brutalist_primary": "4px 4px 0px #FF3B30",
+      "brutalist_secondary": "4px 4px 0px #FFCC00",
+      "brutalist_tertiary": "4px 4px 0px #00E5FF"
+    },
+    "textures": "Use CSS background noise/grain overlay globally to kill digital flatness. High-contrast scanning lines (repeating-linear-gradient) for special cards.",
+    "icons": "Use Phosphor Icons (@phosphor-icons/react) with bold/duotone weights. Keep it raw and edgy."
+  },
+  "components": {
+    "cards": {
+      "base": "bg-[#141414] border-2 border-white/20 rounded-none",
+      "hover": "hover:-translate-y-1 hover:translate-x-[-1px] hover:shadow-[4px_4px_0px_#FFCC00] hover:border-white transition-transform duration-150"
+    },
+    "buttons": {
+      "primary": "bg-[#FF3B30] text-white border-2 border-[#FF3B30] font-bold font-mono uppercase px-6 py-3 shadow-[4px_4px_0px_#FFCC00] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FFCC00] transition-all",
+      "secondary": "bg-transparent text-white border-2 border-white font-bold font-mono uppercase px-6 py-3 hover:bg-white hover:text-black transition-colors"
+    },
+    "chat_bubbles": {
+      "user": "border-2 border-[#FFCC00] bg-transparent text-white font-mono p-4 rounded-none ml-8",
+      "ai": "bg-[#1F1F1F] text-[#00E5FF] border-l-4 border-[#FF3B30] font-mono p-4 rounded-none mr-8",
+      "system": "text-center text-[#FFCC00] font-mono text-xs uppercase tracking-widest my-4"
+    },
+    "slider": {
+      "description": "Bakchodi Intensity Slider",
+      "style": "Use Shadcn Slider. Override track to be deep gray, active track to be a gradient from Yellow to Mirchi Red, thumb should be a strict square block with a 2px white border."
+    },
+    "special_cards": {
+      "generate_lafda": "Looks like a breaking news ticker. Red background, scrolling white massive text, high contrast.",
+      "am_i_cooked": "Looks like a printed grocery receipt. Dashed border, white background with black monospace text. Extreme brutalist layout.",
+      "aura_check": "Holographic/Neon. Pitch black card, bright #00E5FF border, intense text-shadow (glow) on the Aura score."
+    }
+  },
+  "layouts": {
+    "home_screen": {
+      "header": "Top marquee using react-fast-marquee. Text: 'KYA SCENE HAI, BHAI? 🇮🇳 WARNING: MAXIMUM BAKCHODI AHEAD'. Font: Bebas Neue, text-4xl, yellow text on black bg.",
+      "hero": "Massive H1 'KYA SCENE HAI, BHAI? 🇮🇳' centered. Tagline in monospace. Language toggle (Hinglish/Hindi/English) styled as a strict radio group.",
+      "grid": "Mode Picker Grid using 'Tetris Mode'. 2 columns on mobile. Cards overlap slightly or sit flush. 6 Modes: Bakchod Mode, Roast Me, Gyaan Chodu, Chai Tapri, Timepass, Relationship Dost.",
+      "quick_actions": "3 massive full-width or flex buttons below the grid: Generate Lafda, Am I Cooked?, Aura Check. Use extremely loud colors."
+    },
+    "chat_view": {
+      "header": "Sticky top. Name of the mode (e.g. '🔥 ROAST ME'). Button to open 'Stats/Settings' sidebar.",
+      "body": "Full height chat. Raw text flow. Terminal inspired.",
+      "input_area": "Bottom fixed. 2px solid white border around a textarea. A massive 'SEND' square button. 'ROAST HARDER' escalation button floating right above input in Roast mode."
+    },
+    "sidebar_stats": {
+      "layout": "Fixed right drawer on desktop, bottom sheet or full-screen overlay on mobile. Pitch black bg, 2px white left border.",
+      "content": "Bakchodi Level (Progress bar), Roast Resistance %, Time Wasted, Certified Berozgaar Badge. Bakchodi Intensity Slider (1-10)."
+    }
+  },
+  "motion": {
+    "transitions": "Use short durations (150ms). Brutalist motion is snappy, not smooth. Use 'spring' physics with high stiffness and damping.",
+    "chat_entrance": "Messages pop in with a hard 0px to 4px Y-translation and opacity fade. No slow scaling.",
+    "hover_states": "Immediate color inversion or hard shadow displacement. No soft fading shadows."
+  },
+  "responsive": {
+    "breakpoint": "Mobile-first approach.",
+    "layout": "Stack bento grids to 1 or 2 columns max on mobile. Ensure chat input avoids iOS safe area and keyboard overlap.",
+    "typography": "Scale H1 down to text-5xl on mobile, but keep it extremely bold. Maintain monospace text-base for readable chat.",
+    "overflow_guard": "Ensure max-w-[100vw] and overflow-x-hidden on the main wrapper. Pad containers with p-4 or p-6.",
+    "tap_targets": "All buttons, sliders, and chat actions must be at least 48px high."
+  },
+  "image_urls": [
+    {
+      "url": "https://images.unsplash.com/photo-1619581073186-5b4ae1b0caad?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwyfHxjdXR0aW5nJTIwY2hhaSUyMGdsYXNzfGVufDB8fHx8MTc4ODAxNjYwOXww&ixlib=rb-4.1.0&q=85",
+      "category": "Chai Tapri Mode / Background Texture",
+      "description": "Desi clay pots / Kulhad texture for a subtle background element in Chai Tapri mode."
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1697659624924-a49cf64d73d0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzB8MHwxfHNlYXJjaHwxfHxuZW9uJTIwcmV0cm8lMjBzdW5nbGFzc2VzfGVufDB8fHx8MTc4ODAxNjYxMHww&ixlib=rb-4.1.0&q=85",
+      "category": "Bakchod Mode Avatar / Graphic",
+      "description": "Neon retro sunglasses to symbolize the 'unhinged Gen Z dost'."
+    }
+  ],
+  "instructions_to_main_agent": [
+    "You are building BakchodAI, an unhinged, meme-heavy, desi AI friend interface.",
+    "STRICTLY follow the Neo-Brutalist aesthetic. Do NOT use soft shadows, rounded bubbles, or purple gradients.",
+    "Use pure HTML + Tailwind for complex grid layouts (like the home screen). Shadcn should be used strictly for logical components (Slider, Dialog, Sheet), but MUST be heavily customized to remove the default 'Vercel' look.",
+    "For the Chat UI, do not build a standard iMessage clone. Messages should look like terminal output or literal sticky notes on a wall. Use monospace fonts (`font-mono`) extensively for messages.",
+    "Incorporate the Bakchodi Intensity Slider as a core piece of the UI in the chat view or sidebar. It should look like a dangerous control panel dial/slider.",
+    "The 3 special actions ('Generate Lafda', 'Am I Cooked?', 'Aura Check') should generate unique visual 'Receipt' or 'Breaking News' cards rather than standard chat responses.",
+    "Use Phosphor icons or Lucide with sharp strokes for mode symbols.",
+    "Include a marquee at the top of the homepage using `react-fast-marquee`. It must yell 'KYA SCENE HAI, BHAI? 🇮🇳'.",
+    "Install and use `framer-motion` for snappy, hard-spring transitions.",
+    "MANDATORY: Ensure everything is mobile-first. The bento grid should reflow to 1-2 columns, inputs should be large, and the sidebar must convert to a bottom sheet or drawer on mobile."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy and brutalist 4px solid shadow offsets.",
+    "You MUST NOT apply universal transition. Eg: `transition: all`. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or in this case, sharp brutalist buttons with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons. Use real icons or contextually unhinged emojis (💀, 🗿, 🔥, 🌶️, ☕).",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Prioritize using pre-existing components from src/components/ui when applicable, but style them brutally.",
+    "Use `sonner` for toasts. Sonner component is located in `/app/frontend/src/components/ui/sonner.js` (Note: using .js not .tsx).",
+    "All interactive and key informational elements MUST include a `data-testid` attribute to facilitate robust automated testing."
+  ]
+}

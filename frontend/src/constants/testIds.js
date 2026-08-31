@@ -1,0 +1,41 @@
+export const HOME = {
+  emergentLink: "emergent-link",
+  heroTitle: "hero-title",
+  langHinglish: "lang-hinglish",
+  langHindi: "lang-hindi",
+  langEnglish: "lang-english",
+  modeCard: (mode) => `mode-card-${mode}`,
+  quickLafda: "quick-lafda",
+  quickCooked: "quick-cooked",
+  quickAura: "quick-aura",
+  ctaTalk: "cta-talk",
+};
+
+export const CHAT = {
+  root: "chat-root",
+  header: "chat-header",
+  backBtn: "chat-back",
+  modeTitle: "chat-mode-title",
+  input: "chat-input",
+  sendBtn: "chat-send",
+  roastHarder: "chat-roast-harder",
+  clearBtn: "chat-clear",
+  statsBtn: "chat-stats",
+  intensitySlider: "chat-intensity",
+  message: (id) => `msg-${id}`,
+  messagesList: "chat-messages",
+};
+
+export const SPECIAL = {
+  lafdaDialog: "lafda-dialog",
+  lafdaHeadline: "lafda-headline",
+  lafdaRegen: "lafda-regen",
+  cookedDialog: "cooked-dialog",
+  cookedInput: "cooked-input",
+  cookedSubmit: "cooked-submit",
+  cookedResult: "cooked-result",
+  auraDialog: "aura-dialog",
+  auraInput: "aura-input",
+  auraSubmit: "aura-submit",
+  auraResult: "aura-result",
+};

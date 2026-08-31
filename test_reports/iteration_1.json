@@ -1,0 +1,33 @@
+{
+  "summary": "First-run smoke test of BakchodAI. Backend: all 10 endpoints/scenarios PASS (health, chat across 6 modes, 3 languages incl. Devanagari for hindi, history persist/read/delete, /api/lafda, /api/cooked valid+400, /api/aura valid+400). Frontend: Home hero + 6 mode cards + language toggle + all 3 quick action dialogs (lafda/cooked/aura) render with real AI content. Chat page: title, send message, assistant reply, stats sheet (intensity + clear), back nav, and Roast Harder new reply all confirmed visually via screenshot. Overall app is production-smoke-ready.",
+  "tested_scope": ["frontend", "backend", "integration"],
+  "passed": [
+    "GET /api/ -> {app:'BakchodAI', status:...}",
+    "POST /api/chat 6 modes (bakchod, roast, gyaan, chai, timepass, relationship) each returns non-empty reply",
+    "POST /api/chat language=hindi returns Devanagari; english returns English; hinglish returns mixed",
+    "GET /api/chat/history returns user+assistant messages in order",
+    "DELETE /api/chat/history clears session-mode; subsequent GET returns []",
+    "POST /api/lafda -> {headline, body, reaction} all non-empty",
+    "POST /api/cooked -> {cooked_pct, recoverable_pct, delusion_pct, verdict, uncook_plan[]}",
+    "POST /api/cooked empty body -> 400 with detail",
+    "POST /api/aura -> {aura_points, decision_making, self_respect, confidence, verdict}",
+    "POST /api/aura empty body -> 400 with detail",
+    "Home hero-title visible ('KYA SCENE HAI, BHAI?')",
+    "All 6 mode-card-* testids visible and clickable",
+    "Language toggles (lang-hindi/hinglish/english) clickable without error",
+    "quick-lafda opens lafda-dialog; lafda-headline populated after AI call",
+    "quick-cooked opens dialog; cooked-input+submit renders cooked-result",
+    "quick-aura opens dialog; aura-input+submit renders aura-result",
+    "/chat/bakchod loads chat-mode-title 'Bakchod Mode'",
+    "chat-input + chat-send sends message; AI reply renders (verified in screenshot)",
+    "chat-stats opens sheet exposing chat-intensity slider and chat-clear button",
+    "chat-back navigates to /",
+    "/chat/roast shows chat-roast-harder; clicking it produces another AI reply (visible in screenshot)"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": "Test-script initially used wrong selector prefix 'chat-msg-' but actual testids are 'msg-<id>'. This is a script-only nit; app behavior confirmed via screenshot. No app-code changes required."
+}
