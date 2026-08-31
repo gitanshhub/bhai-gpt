@@ -4,7 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SPECIAL } from "@/constants/testIds";
 import { api } from "@/lib/api";
-import { X, RefreshCw, Loader2 } from "lucide-react";
+import { X, RefreshCw, Loader2, Share2, Check } from "lucide-react";
+import { toast } from "sonner";
+
+function copyText(text) {
+  try {
+    const p = navigator.clipboard?.writeText(text);
+    if (p && typeof p.catch === "function") p.catch(() => {});
+    return true;
+  } catch { return false; }
+}
 
 // ---------------- Lafda Generator ----------------
 export function LafdaDialog({ open, onClose }) {
@@ -154,12 +163,24 @@ export function CookedDialog({ open, onClose }) {
               <div className="border-t border-dashed border-black mt-4 pt-2 text-center text-[10px] uppercase tracking-widest">
                 — thank you come again 🙏 —
               </div>
-              <Button
-                onClick={() => setResult(null)}
-                className="w-full mt-2 bg-black text-[#f4f0e6] border-2 border-black rounded-none font-mono uppercase tracking-widest hover:bg-[#ff3b30]"
-              >
-                Check again
-              </Button>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  data-testid={SPECIAL.shareBtn}
+                  onClick={() => {
+                    const text = `🚨 COOKED CHECK\nCooked: ${result.cooked_pct}%\nRecoverable: ${result.recoverable_pct}%\nDelusion: ${result.delusion_pct}%\n\n${result.verdict}\n\nUncook Plan:\n${result.uncook_plan.map(p => "• "+p).join("\n")}\n\nvia BakchodAI`;
+                    if (copyText(text)) { toast.success("Copied. Forward to your group."); }
+                  }}
+                  className="flex-1 bg-black text-[#f4f0e6] border-2 border-black rounded-none font-mono uppercase tracking-widest hover:bg-[#ff3b30]"
+                >
+                  <Share2 size={14} className="mr-2" /> Share
+                </Button>
+                <Button
+                  onClick={() => setResult(null)}
+                  className="flex-1 bg-transparent text-black border-2 border-black rounded-none font-mono uppercase tracking-widest hover:bg-black hover:text-[#f4f0e6]"
+                >
+                  Check again
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -258,12 +279,23 @@ export function AuraDialog({ open, onClose }) {
                 <div className="text-xs uppercase tracking-widest text-white/50 mb-1">Verdict</div>
                 <div className="text-white text-sm">{result.verdict}</div>
               </div>
-              <Button
-                onClick={() => setResult(null)}
-                className="w-full bg-transparent text-white border-2 border-white rounded-none font-mono uppercase tracking-widest hover:bg-white hover:text-black"
-              >
-                Check again
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    const text = `🗿 AURA REPORT\nAura: ${result.aura_points > 0 ? "+" : ""}${result.aura_points}\nDecision: ${result.decision_making}\nSelf-Respect: ${result.self_respect}\nConfidence: ${result.confidence}\n\n${result.verdict}\n\nvia BakchodAI`;
+                    if (copyText(text)) { toast.success("Aura report copied. Post it."); }
+                  }}
+                  className="flex-1 bg-[#00e5ff] text-black border-2 border-[#00e5ff] rounded-none font-mono uppercase tracking-widest hover:bg-white hover:border-white"
+                >
+                  <Share2 size={14} className="mr-2" /> Share
+                </Button>
+                <Button
+                  onClick={() => setResult(null)}
+                  className="flex-1 bg-transparent text-white border-2 border-white rounded-none font-mono uppercase tracking-widest hover:bg-white hover:text-black"
+                >
+                  Check again
+                </Button>
+              </div>
             </div>
           )}
         </div>

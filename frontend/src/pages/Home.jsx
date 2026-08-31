@@ -4,7 +4,8 @@ import { MODES } from "@/lib/modes";
 import { HOME } from "@/constants/testIds";
 import { Button } from "@/components/ui/button";
 import { LafdaDialog, CookedDialog, AuraDialog } from "@/components/bakchod/SpecialDialogs";
-import { Flame, Skull, Sparkles } from "lucide-react";
+import { RateLifeDialog, BroCourtDialog } from "@/components/bakchod/ExtraDialogs";
+import { Flame, Skull, Sparkles, ClipboardList, Gavel } from "lucide-react";
 
 const MARQUEE_ITEMS = [
   "KYA SCENE HAI, BHAI? 🇮🇳",
@@ -49,6 +50,8 @@ export default function Home() {
   const [lafdaOpen, setLafdaOpen] = useState(false);
   const [cookedOpen, setCookedOpen] = useState(false);
   const [auraOpen, setAuraOpen] = useState(false);
+  const [lifeOpen, setLifeOpen] = useState(false);
+  const [courtOpen, setCourtOpen] = useState(false);
 
   const chooseLang = (l) => { setLang(l); localStorage.setItem("bakchod_lang", l); };
 
@@ -137,14 +140,14 @@ export default function Home() {
           <div className="h-2 w-2 bg-[#00e5ff]" />
           <div className="font-mono text-xs uppercase tracking-[0.3em] text-white/60">Instant chaos</div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <QuickBtn
             testid={HOME.quickLafda}
             onClick={() => setLafdaOpen(true)}
             bg="#ff3b30"
             fg="#fff"
             icon={<Flame size={22} />}
-            title="Generate Lafda"
+            title="Lafda"
             subtitle="Fake breaking news, real damage."
           />
           <QuickBtn
@@ -154,7 +157,7 @@ export default function Home() {
             fg="#0a0a0a"
             icon={<Skull size={22} />}
             title="Am I Cooked?"
-            subtitle="Diagnostic receipt of your situation."
+            subtitle="Situation diagnostic receipt."
           />
           <QuickBtn
             testid={HOME.quickAura}
@@ -163,7 +166,25 @@ export default function Home() {
             fg="#000"
             icon={<Sparkles size={22} />}
             title="Aura Check"
-            subtitle="Rate your latest life decision."
+            subtitle="Rate your last decision."
+          />
+          <QuickBtn
+            testid={HOME.quickLife}
+            onClick={() => setLifeOpen(true)}
+            bg="#ffcc00"
+            fg="#000"
+            icon={<ClipboardList size={22} />}
+            title="Rate My Life"
+            subtitle="Full life audit. Brutally honest."
+          />
+          <QuickBtn
+            testid={HOME.quickCourt}
+            onClick={() => setCourtOpen(true)}
+            bg="#141414"
+            fg="#ffcc00"
+            icon={<Gavel size={22} />}
+            title="Bro Court"
+            subtitle="File a case. Get a verdict."
           />
         </div>
       </section>
@@ -179,6 +200,8 @@ export default function Home() {
       <LafdaDialog open={lafdaOpen} onClose={() => setLafdaOpen(false)} />
       <CookedDialog open={cookedOpen} onClose={() => setCookedOpen(false)} />
       <AuraDialog open={auraOpen} onClose={() => setAuraOpen(false)} />
+      <RateLifeDialog open={lifeOpen} onClose={() => setLifeOpen(false)} />
+      <BroCourtDialog open={courtOpen} onClose={() => setCourtOpen(false)} />
     </div>
   );
 }

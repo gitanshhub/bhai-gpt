@@ -18,21 +18,25 @@ Build "BakchodAI" — an AI dost web app with a chronically-online desi personal
 - Session id in localStorage; chat scoped per (session,mode). Bakchodi stats derived and persisted.
 
 ## What's implemented (Feb 2026)
-- Home: marquee, hero, language toggle (Hinglish/Hindi/English), 6-mode bento grid, 3 quick-action cards (Lafda, Cooked, Aura).
+- Home: marquee, hero, language toggle (Hinglish/Hindi/English), 6-mode bento grid.
+- Home quick-actions grid (5 buttons): Lafda · Am I Cooked · Aura Check · **Rate My Life** · **Bro Court**.
 - Chat page: mode header, message list, Enter-to-send input, Roast Harder button (roast mode), sonner toasts, per-mode history.
 - Stats sheet: bakchodi level / roast resistance / chai / lafda potential, time wasted, intensity slider (1-10), language toggle mobile, clear history.
-- Special dialogs: Lafda (breaking news red card), Am I Cooked (dashed receipt), Aura Check (neon holographic).
+- Special dialogs: Lafda (breaking news), Am I Cooked (receipt), Aura Check (neon), **Rate My Life (yellow audit)**, **Bro Court (courtroom verdict)**.
+- Share buttons on Cooked, Aura, Life, Court result cards → copies formatted text to clipboard (viral loop).
+- Personality prompt upgraded: reaction-before-punchline, gradual escalation, callback-friendly, deadpan defaults.
 - All interactive elements carry `data-testid`.
 
 ## Prioritized backlog (P0/P1/P2)
-- P1: Character unlocks (Tapri Bhai, Sharma Uncle, Toxic Dost, Fake Guru, Startup Bro)
-- P1: "Send this for me" multi-tone reply generator
-- P1: Shareable Aura Card / Lafda image (canvas export → social share)
-- P2: Indian Household Simulator scenario mode
-- P2: Bro Court / Red Flag Detector / Vibe Check standalone tools
+- P1: **Bhai Profile / Aura Card** — persistent stat sheet with shareable canvas PNG (biggest viral asset)
+- P1: **Lore & Callbacks** — remember arcs across sessions ("we're not repeating the Ex Arc again")
+- P1: Character unlocks (Tapri Bhai, Sharma Uncle, Toxic Dost, Fake Guru, Startup Bro) as chat sub-personas
+- P1: **Bhai Push / Lock-In Mode** — 45-min focus timer that switches personality to no-nonsense
+- P2: "Send this for me" multi-tone reply generator (nonchalant / flirty / unhinged / desi)
+- P2: Delusion Detector / Reality Check standalone tool
 - P2: Regional language packs (Delhi / Mumbai / Punjab / etc.)
-- P2: Roast Battle (2-player async)
-- P2: Streaming responses (currently non-streaming for speed of MVP)
+- P2: 2-player Roast Battle / Group Bhai room
+- P2: Streaming responses (currently non-streaming for MVP simplicity)
 
 ## Next tasks
 See P1 backlog above.

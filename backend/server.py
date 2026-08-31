@@ -20,6 +20,8 @@ from prompts import (
     LAFDA_PROMPT,
     COOKED_PROMPT,
     AURA_PROMPT,
+    RATE_LIFE_PROMPT,
+    BRO_COURT_PROMPT,
 )
 
 
@@ -84,6 +86,29 @@ class AuraOut(BaseModel):
     self_respect: str
     confidence: str
     verdict: str
+
+
+class RateLifeCategory(BaseModel):
+    label: str
+    score: str
+
+
+class RateLifeOut(BaseModel):
+    overall_grade: str
+    aura_delta: int
+    categories: List[RateLifeCategory]
+    verdict: str
+    one_liner: str
+
+
+class BroCourtOut(BaseModel):
+    plaintiff: str
+    defendant: str
+    charges: List[str]
+    cross_examination: List[str]
+    verdict: str
+    compensation: str
+    judge_note: str
 
 
 # ---------- Helpers ----------
@@ -288,6 +313,66 @@ async def aura_check(payload: OneShotIn):
     except Exception as e:
         logger.exception("aura error")
         raise HTTPException(status_code=502, detail=f"Aura check failed: {e}")
+
+
+@api_router.post("/rate-life", response_model=RateLifeOut)
+async def rate_life(payload: OneShotIn):
+    if not (payload.context or "").strip():
+        raise HTTPException(status_code=400, detail="Bhai apni life ka scene toh bata.")
+    session_id = payload.session_id or f"life-{uuid.uuid4()}"
+    try:
+        raw = await _run_chat(RATE_LIFE_PROMPT, session_id, payload.context)
+        data = _extract_json(raw)
+        cats = data.get("categories", []) or []
+        cleaned_cats = []
+        for c in cats[:6]:
+            if isinstance(c, dict):
+                cleaned_cats.append(RateLifeCategory(
+                    label=str(c.get("label", ""))[:32] or "Category",
+                    score=str(c.get("score", ""))[:16] or "-"
+                ))
+        if not cleaned_cats:
+            cleaned_cats = [RateLifeCategory(label="Overall", score="?")]
+        return RateLifeOut(
+            overall_grade=str(data.get("overall_grade", "C"))[:24],
+            aura_delta=int(data.get("aura_delta", 0)),
+            categories=cleaned_cats,
+            verdict=str(data.get("verdict", "Life audit bhi bakchodi ban gayi.")),
+            one_liner=str(data.get("one_liner", "Side quest activated. 💀"))[:120],
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("rate-life error")
+        raise HTTPException(status_code=502, detail=f"Life audit failed: {e}")
+
+
+@api_router.post("/bro-court", response_model=BroCourtOut)
+async def bro_court(payload: OneShotIn):
+    if not (payload.context or "").strip():
+        raise HTTPException(status_code=400, detail="Bhai case toh file kar pehle.")
+    session_id = payload.session_id or f"court-{uuid.uuid4()}"
+    try:
+        raw = await _run_chat(BRO_COURT_PROMPT, session_id, payload.context)
+        data = _extract_json(raw)
+        charges = data.get("charges", []) or []
+        cross = data.get("cross_examination", []) or []
+        if isinstance(charges, str): charges = [charges]
+        if isinstance(cross, str): cross = [cross]
+        return BroCourtOut(
+            plaintiff=str(data.get("plaintiff", "You"))[:40],
+            defendant=str(data.get("defendant", "That mf"))[:40],
+            charges=[str(c)[:140] for c in charges][:4] or ["Being a whole clown."],
+            cross_examination=[str(q)[:200] for q in cross][:4] or ["Do you have anything to say for yourself?"],
+            verdict=str(data.get("verdict", "GUILTY"))[:60],
+            compensation=str(data.get("compensation", "One chai + emotional damages."))[:280],
+            judge_note=str(data.get("judge_note", "Court dismissed. Get out."))[:200],
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("bro-court error")
+        raise HTTPException(status_code=502, detail=f"Bro Court crashed: {e}")
 
 
 app.include_router(api_router)

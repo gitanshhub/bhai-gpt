@@ -8,6 +8,8 @@ export const HOME = {
   quickLafda: "quick-lafda",
   quickCooked: "quick-cooked",
   quickAura: "quick-aura",
+  quickLife: "quick-life",
+  quickCourt: "quick-court",
   ctaTalk: "cta-talk",
 };
 
@@ -38,4 +40,13 @@ export const SPECIAL = {
   auraInput: "aura-input",
   auraSubmit: "aura-submit",
   auraResult: "aura-result",
+  lifeDialog: "life-dialog",
+  lifeInput: "life-input",
+  lifeSubmit: "life-submit",
+  lifeResult: "life-result",
+  courtDialog: "court-dialog",
+  courtInput: "court-input",
+  courtSubmit: "court-submit",
+  courtResult: "court-result",
+  shareBtn: "share-btn",
 };

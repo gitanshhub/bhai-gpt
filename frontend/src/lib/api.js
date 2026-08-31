@@ -14,6 +14,8 @@ export const api = {
   lafda: (payload = {}) => client.post("/lafda", payload).then((r) => r.data),
   cooked: (payload) => client.post("/cooked", payload).then((r) => r.data),
   aura: (payload) => client.post("/aura", payload).then((r) => r.data),
+  rateLife: (payload) => client.post("/rate-life", payload).then((r) => r.data),
+  broCourt: (payload) => client.post("/bro-court", payload).then((r) => r.data),
 };
 
 // Session id lives in localStorage for this browser
