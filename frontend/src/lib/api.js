@@ -7,15 +7,17 @@ const client = axios.create({ baseURL: API, timeout: 60000 });
 
 export const api = {
   chat: (payload) => client.post("/chat", payload).then((r) => r.data),
-  history: (session_id, mode) =>
-    client.get(`/chat/history`, { params: { session_id, mode } }).then((r) => r.data),
-  clearHistory: (session_id, mode) =>
-    client.delete(`/chat/history`, { params: { session_id, mode } }).then((r) => r.data),
+  history: (session_id, mode, character = "default") =>
+    client.get(`/chat/history`, { params: { session_id, mode, character } }).then((r) => r.data),
+  clearHistory: (session_id, mode, character = "default") =>
+    client.delete(`/chat/history`, { params: { session_id, mode, character } }).then((r) => r.data),
   lafda: (payload = {}) => client.post("/lafda", payload).then((r) => r.data),
   cooked: (payload) => client.post("/cooked", payload).then((r) => r.data),
   aura: (payload) => client.post("/aura", payload).then((r) => r.data),
   rateLife: (payload) => client.post("/rate-life", payload).then((r) => r.data),
   broCourt: (payload) => client.post("/bro-court", payload).then((r) => r.data),
+  lockIn: (payload) => client.post("/lock-in", payload).then((r) => r.data),
+  lore: (session_id) => client.get("/lore", { params: { session_id } }).then((r) => r.data),
 };
 
 // Session id lives in localStorage for this browser

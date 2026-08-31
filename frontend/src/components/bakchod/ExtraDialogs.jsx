@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SPECIAL } from "@/constants/testIds";
 import { api } from "@/lib/api";
+import { push, inc } from "@/lib/store";
 import { X, Loader2, Share2, Check, Gavel } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +32,7 @@ export function RateLifeDialog({ open, onClose }) {
     try {
       const r = await api.rateLife({ context: ctx });
       setResult(r);
+      push("life_history", { grade: r.overall_grade, aura_delta: r.aura_delta, one_liner: r.one_liner });
     } catch (e) {
       setError(e?.response?.data?.detail || "Life audit broke bhai.");
     } finally { setLoading(false); }
@@ -153,6 +155,7 @@ export function BroCourtDialog({ open, onClose }) {
     try {
       const r = await api.broCourt({ context: ctx });
       setResult(r);
+      inc("courts_filed");
     } catch (e) {
       setError(e?.response?.data?.detail || "Court adjourned by force.");
     } finally { setLoading(false); }

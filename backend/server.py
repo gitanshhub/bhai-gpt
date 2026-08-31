@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import json
 import re
+import asyncio
 import logging
 import uuid
 from pathlib import Path
@@ -22,6 +23,9 @@ from prompts import (
     AURA_PROMPT,
     RATE_LIFE_PROMPT,
     BRO_COURT_PROMPT,
+    LOCK_IN_PROMPT,
+    LORE_EXTRACT_PROMPT,
+    CHARACTER_PROMPTS,
 )
 
 
@@ -50,6 +54,7 @@ class ChatMessageIn(BaseModel):
     language: str = "hinglish"
     intensity: int = 6
     message: str
+    character: str = "default"
 
 
 class ChatMessageOut(BaseModel):
@@ -109,6 +114,33 @@ class BroCourtOut(BaseModel):
     verdict: str
     compensation: str
     judge_note: str
+
+
+class LockInIn(BaseModel):
+    task: str
+    minutes: int = 45
+    session_id: Optional[str] = None
+
+
+class LockInStep(BaseModel):
+    minutes: int
+    title: str
+    detail: str
+
+
+class LockInOut(BaseModel):
+    verdict: str
+    steps: List[LockInStep]
+    first_action: str
+    one_rule: str
+
+
+class LoreOut(BaseModel):
+    session_id: str
+    arcs: List[dict] = []
+    user_traits: List[str] = []
+    running_jokes: List[str] = []
+    updated_at: Optional[str] = None
 
 
 # ---------- Helpers ----------
@@ -174,11 +206,23 @@ async def root():
 
 
 @api_router.post("/chat", response_model=ChatMessageOut)
-async def chat(payload: ChatMessageIn):
-    system_prompt = build_system_prompt(payload.mode, payload.language, payload.intensity)
+async def chat(payload: ChatMessageIn, background_tasks: BackgroundTasks):
+    # Load lore for this browser session (not scoped by mode — lore is cross-mode)
+    lore_doc = await db.lore.find_one({"session_id": payload.session_id}, {"_id": 0})
+    lore = None
+    if lore_doc:
+        lore = {
+            "arcs": lore_doc.get("arcs", []),
+            "user_traits": lore_doc.get("user_traits", []),
+            "running_jokes": lore_doc.get("running_jokes", []),
+        }
+    system_prompt = build_system_prompt(
+        payload.mode, payload.language, payload.intensity,
+        character=payload.character, lore=lore,
+    )
 
-    # Build a session_id that includes mode so history is per-mode within one browser session
-    scoped_session = f"{payload.session_id}::{payload.mode}"
+    # Build a session_id that includes mode+character so history is per-persona
+    scoped_session = f"{payload.session_id}::{payload.mode}::{payload.character}"
 
     # Rehydrate short history so the LLM has context (LlmChat instance is fresh each call)
     history = await _load_history(scoped_session, limit=12)
@@ -204,9 +248,11 @@ async def chat(payload: ChatMessageIn):
     user_doc = {
         "id": str(uuid.uuid4()),
         "session_id": scoped_session,
+        "user_session": payload.session_id,
         "role": "user",
         "text": payload.message,
         "mode": payload.mode,
+        "character": payload.character,
         "language": payload.language,
         "intensity": payload.intensity,
         "created_at": now,
@@ -215,12 +261,17 @@ async def chat(payload: ChatMessageIn):
     ai_doc = {
         "id": ai_id,
         "session_id": scoped_session,
+        "user_session": payload.session_id,
         "role": "assistant",
         "text": reply,
         "mode": payload.mode,
+        "character": payload.character,
         "created_at": now,
     }
     await db.chats.insert_many([user_doc, ai_doc])
+
+    # Background lore refresh — fire and forget
+    background_tasks.add_task(_refresh_lore, payload.session_id)
 
     return ChatMessageOut(
         id=ai_id,
@@ -231,9 +282,51 @@ async def chat(payload: ChatMessageIn):
     )
 
 
+async def _refresh_lore(user_session: str):
+    """Background task: pull recent user chats across all modes, summarize into lore doc."""
+    try:
+        total_msgs = await db.chats.count_documents({"user_session": user_session})
+        if total_msgs < 4:
+            return
+        # Get last ~30 messages across ALL scoped sessions for this user_session
+        docs = (
+            await db.chats.find({"user_session": user_session}, {"_id": 0})
+            .sort("created_at", -1)
+            .to_list(30)
+        )
+        docs = list(reversed(docs))  # chronological
+        # Freshness: only re-extract if 4+ new messages since last extract (uses absolute count)
+        existing = await db.lore.find_one({"session_id": user_session}, {"_id": 0})
+        last_count = (existing or {}).get("last_msg_count", 0)
+        if existing and total_msgs - last_count < 4:
+            return
+        transcript = "\n".join(
+            f"{d.get('role','user').upper()} [{d.get('mode','?')}]: {d.get('text','')[:400]}"
+            for d in docs
+        )
+        raw = await _run_chat(LORE_EXTRACT_PROMPT, f"lore-{user_session}", transcript)
+        try:
+            data = _extract_json(raw)
+        except Exception:
+            return
+        doc = {
+            "session_id": user_session,
+            "arcs": (data.get("arcs") or [])[:5],
+            "user_traits": (data.get("user_traits") or [])[:6],
+            "running_jokes": (data.get("running_jokes") or [])[:5],
+            "last_msg_count": total_msgs,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await db.lore.update_one(
+            {"session_id": user_session}, {"$set": doc}, upsert=True
+        )
+    except Exception:
+        logger.exception("lore refresh failed")
+
+
 @api_router.get("/chat/history")
-async def get_history(session_id: str, mode: str):
-    scoped = f"{session_id}::{mode}"
+async def get_history(session_id: str, mode: str, character: str = "default"):
+    scoped = f"{session_id}::{mode}::{character}"
     docs = (
         await db.chats.find({"session_id": scoped}, {"_id": 0})
         .sort("created_at", 1)
@@ -243,10 +336,59 @@ async def get_history(session_id: str, mode: str):
 
 
 @api_router.delete("/chat/history")
-async def clear_history(session_id: str, mode: str):
-    scoped = f"{session_id}::{mode}"
+async def clear_history(session_id: str, mode: str, character: str = "default"):
+    scoped = f"{session_id}::{mode}::{character}"
     await db.chats.delete_many({"session_id": scoped})
     return {"cleared": True}
+
+
+@api_router.get("/lore", response_model=LoreOut)
+async def get_lore(session_id: str):
+    doc = await db.lore.find_one({"session_id": session_id}, {"_id": 0})
+    if not doc:
+        return LoreOut(session_id=session_id)
+    return LoreOut(
+        session_id=session_id,
+        arcs=doc.get("arcs", []),
+        user_traits=doc.get("user_traits", []),
+        running_jokes=doc.get("running_jokes", []),
+        updated_at=doc.get("updated_at"),
+    )
+
+
+@api_router.post("/lock-in", response_model=LockInOut)
+async def lock_in_plan(payload: LockInIn):
+    task = (payload.task or "").strip()
+    if not task:
+        raise HTTPException(status_code=400, detail="Bhai task toh bata pehle.")
+    minutes = max(5, min(180, int(payload.minutes or 45)))
+    session_id = payload.session_id or f"lockin-{uuid.uuid4()}"
+    ctx = f"Task: {task}\nMinutes available: {minutes}"
+    try:
+        raw = await _run_chat(LOCK_IN_PROMPT, session_id, ctx)
+        data = _extract_json(raw)
+        raw_steps = data.get("steps", []) or []
+        steps = []
+        for s in raw_steps[:5]:
+            if isinstance(s, dict):
+                steps.append(LockInStep(
+                    minutes=int(s.get("minutes", 5) or 5),
+                    title=str(s.get("title", "Step"))[:80],
+                    detail=str(s.get("detail", ""))[:160],
+                ))
+        if not steps:
+            steps = [LockInStep(minutes=minutes, title="Just start", detail="Open the thing. Do the smallest first action.")]
+        return LockInOut(
+            verdict=str(data.get("verdict", ""))[:200] or "Chal kaam pe lag.",
+            steps=steps,
+            first_action=str(data.get("first_action", ""))[:160] or "Open the file/app you need.",
+            one_rule=str(data.get("one_rule", ""))[:120] or "Phone in another room.",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("lock-in error")
+        raise HTTPException(status_code=502, detail=f"Lock-in plan failed: {e}")
 
 
 @api_router.post("/lafda", response_model=LafdaOut)

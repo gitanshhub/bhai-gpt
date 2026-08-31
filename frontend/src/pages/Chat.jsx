@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MODE_BY_ID } from "@/lib/modes";
+import { CHARACTERS, CHAR_BY_ID } from "@/lib/characters";
 import { api, getSessionId } from "@/lib/api";
 import { CHAT } from "@/constants/testIds";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { ArrowLeft, Send, Flame, Trash2, BarChart3, Loader2 } from "lucide-react";
+import { bumpMsgs, inc, loadStore } from "@/lib/store";
+import { ArrowLeft, Send, Flame, Trash2, BarChart3, Loader2, ChevronDown } from "lucide-react";
 
 const LANGS = [
   { id: "hinglish", label: "HINGLISH" },
@@ -17,26 +22,7 @@ const LANGS = [
 ];
 
 function loadStats() {
-  try {
-    return JSON.parse(localStorage.getItem("bakchod_stats") || "{}");
-  } catch { return {}; }
-}
-function saveStats(s) { localStorage.setItem("bakchod_stats", JSON.stringify(s)); }
-
-function bumpStats(mode) {
-  const s = loadStats();
-  s.msgs = (s.msgs || 0) + 1;
-  s.startedAt = s.startedAt || Date.now();
-  s.modes = s.modes || {};
-  s.modes[mode] = (s.modes[mode] || 0) + 1;
-  // fun derived stats
-  const level = Math.min(100, 10 + Math.floor((s.msgs || 0) * 3.2));
-  const roastRes = Math.max(5, 100 - Math.floor((s.modes?.roast || 0) * 8));
-  const chai = Math.min(100, 20 + (s.modes?.chai || 0) * 6);
-  const lafda = Math.min(100, 25 + (s.modes?.bakchod || 0) * 5 + (s.modes?.relationship || 0) * 4);
-  s.derived = { level, roastRes, chai, lafda };
-  saveStats(s);
-  return s;
+  return loadStore();
 }
 
 function TimeWasted({ startedAt }) {
@@ -61,20 +47,22 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [lang, setLang] = useState(() => localStorage.getItem("bakchod_lang") || "hinglish");
+  const [character, setCharacter] = useState(() => localStorage.getItem("bakchod_character") || "default");
   const [intensity, setIntensity] = useState(() => Number(localStorage.getItem("bakchod_intensity") || 6));
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(loadStats());
   const listRef = useRef(null);
+  const activeChar = CHAR_BY_ID[character] || CHAR_BY_ID.default;
 
-  // Load history
+  // Load history (scoped by character too)
   useEffect(() => {
     (async () => {
       try {
-        const r = await api.history(sessionId, mode.id);
+        const r = await api.history(sessionId, mode.id, character);
         setMessages(r.messages || []);
       } catch {}
     })();
-  }, [sessionId, mode.id]);
+  }, [sessionId, mode.id, character]);
 
   // Auto scroll
   useEffect(() => {
@@ -95,11 +83,14 @@ export default function Chat() {
         mode: mode.id,
         language: lang,
         intensity,
+        character,
         message: text,
       });
       const aiMsg = { id: res.id, role: "assistant", text: res.reply, created_at: res.created_at };
       setMessages((m) => [...m, aiMsg]);
-      setStats(bumpStats(mode.id));
+      const bumped = bumpMsgs(mode.id);
+      if (character !== "default") inc("characters_used", character);
+      setStats(bumped);
     } catch (e) {
       toast.error("Bhai server ne dhoka de diya. Try again.");
       setMessages((m) => m.slice(0, -1));
@@ -112,9 +103,14 @@ export default function Chat() {
   const roastHarder = () => send("ROAST HARDER. Aur zyada beizzati kar. No mercy but stay within the safe zones.");
 
   const clearChat = async () => {
-    await api.clearHistory(sessionId, mode.id);
+    await api.clearHistory(sessionId, mode.id, character);
     setMessages([]);
     toast("History cleared. Fresh bakchodi loading.", { className: "font-mono" });
+  };
+
+  const changeCharacter = (id) => {
+    setCharacter(id);
+    localStorage.setItem("bakchod_character", id);
   };
 
   const changeIntensity = (v) => {
@@ -145,7 +141,45 @@ export default function Chat() {
           </div>
           <div className="font-mono text-[10px] uppercase tracking-widest text-white/50 truncate">{mode.tagline}</div>
         </div>
-        <div className="hidden sm:inline-flex border-2 border-white">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              data-testid={CHAT.characterPicker}
+              className="border-2 border-white/80 px-2 sm:px-3 py-1.5 flex items-center gap-1 hover:bg-white hover:text-black transition-colors font-mono text-xs uppercase tracking-widest"
+            >
+              <span>{activeChar.icon}</span>
+              <span className="hidden sm:inline">{activeChar.name}</span>
+              <ChevronDown size={14} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="bg-black border-2 border-white rounded-none text-white font-mono min-w-[240px]"
+          >
+            <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.3em] text-[#ffcc00]">
+              Pick a persona
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-white/20" />
+            {CHARACTERS.map((c) => (
+              <DropdownMenuItem
+                key={c.id}
+                data-testid={CHAT.characterOption(c.id)}
+                onClick={() => changeCharacter(c.id)}
+                className={
+                  "rounded-none cursor-pointer focus:bg-[#ffcc00] focus:text-black hover:bg-[#ffcc00] hover:text-black " +
+                  (character === c.id ? "bg-white/10" : "")
+                }
+              >
+                <span className="mr-2 text-lg">{c.icon}</span>
+                <div>
+                  <div className="font-bold uppercase text-xs">{c.name}</div>
+                  <div className="text-[10px] opacity-70">{c.tagline}</div>
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="hidden lg:inline-flex border-2 border-white">
           {LANGS.map((l) => (
             <button
               key={l.id}
@@ -240,9 +274,11 @@ export default function Chat() {
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.length === 0 && !loading && (
             <div className="text-center py-16">
-              <div className="text-6xl mb-4">{mode.icon}</div>
+              <div className="text-6xl mb-4">{character === "default" ? mode.icon : activeChar.icon}</div>
               <div className="font-display text-3xl uppercase" style={{ color: mode.accent }}>{mode.intro}</div>
-              <div className="font-mono text-xs text-white/50 mt-2">Type kar. Start bakchodi.</div>
+              <div className="font-mono text-xs text-white/50 mt-2">
+                {character === "default" ? "Type kar. Start bakchodi." : `Persona: ${activeChar.name} · ${activeChar.tagline}`}
+              </div>
             </div>
           )}
 
@@ -261,7 +297,7 @@ export default function Chat() {
               >
                 {m.role !== "user" && (
                   <div className="text-[10px] uppercase tracking-widest text-[#ff3b30] mb-1">
-                    BakchodAI · {mode.name}
+                    {activeChar.icon} {character === "default" ? "BakchodAI" : activeChar.name} · {mode.name}
                   </div>
                 )}
                 {m.text}

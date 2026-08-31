@@ -10,6 +10,8 @@ export const HOME = {
   quickAura: "quick-aura",
   quickLife: "quick-life",
   quickCourt: "quick-court",
+  quickLockin: "quick-lockin",
+  quickProfile: "quick-profile",
   ctaTalk: "cta-talk",
 };
 
@@ -24,8 +26,29 @@ export const CHAT = {
   clearBtn: "chat-clear",
   statsBtn: "chat-stats",
   intensitySlider: "chat-intensity",
+  characterPicker: "chat-character",
+  characterOption: (id) => `chat-character-${id}`,
   message: (id) => `msg-${id}`,
   messagesList: "chat-messages",
+};
+
+export const LOCKIN = {
+  root: "lockin-root",
+  taskInput: "lockin-task",
+  minutesInput: "lockin-minutes",
+  planBtn: "lockin-plan",
+  startBtn: "lockin-start",
+  pauseBtn: "lockin-pause",
+  stopBtn: "lockin-stop",
+  timer: "lockin-timer",
+  stepList: "lockin-steps",
+  completeBtn: "lockin-complete",
+};
+
+export const PROFILE = {
+  dialog: "profile-dialog",
+  canvas: "profile-canvas",
+  download: "profile-download",
 };
 
 export const SPECIAL = {

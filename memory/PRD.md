@@ -18,25 +18,26 @@ Build "BakchodAI" — an AI dost web app with a chronically-online desi personal
 - Session id in localStorage; chat scoped per (session,mode). Bakchodi stats derived and persisted.
 
 ## What's implemented (Feb 2026)
-- Home: marquee, hero, language toggle (Hinglish/Hindi/English), 6-mode bento grid.
-- Home quick-actions grid (5 buttons): Lafda · Am I Cooked · Aura Check · **Rate My Life** · **Bro Court**.
-- Chat page: mode header, message list, Enter-to-send input, Roast Harder button (roast mode), sonner toasts, per-mode history.
-- Stats sheet: bakchodi level / roast resistance / chai / lafda potential, time wasted, intensity slider (1-10), language toggle mobile, clear history.
-- Special dialogs: Lafda (breaking news), Am I Cooked (receipt), Aura Check (neon), **Rate My Life (yellow audit)**, **Bro Court (courtroom verdict)**.
-- Share buttons on Cooked, Aura, Life, Court result cards → copies formatted text to clipboard (viral loop).
-- Personality prompt upgraded: reaction-before-punchline, gradual escalation, callback-friendly, deadpan defaults.
+- Home: marquee, hero, language toggle, 6-mode bento grid, 7 quick-actions.
+- Quick-actions grid: Lafda · Cooked · Aura · Rate My Life · Bro Court · **Lock-In** · **Bhai Profile**.
+- Chat: mode header, message list, Enter-to-send, Roast Harder (roast mode), per-mode+per-persona history, stats sheet, intensity slider.
+- **Character personas (chat header dropdown)**: BakchodAI (default), Tapri Bhai, Sharma Uncle, Toxic Dost, Startup Bro. Each = system-prompt overlay + per-persona chat history scope.
+- **Lore & Callbacks**: after each `/api/chat`, a background task summarizes recent cross-mode conversation into `db.lore` (arcs, user_traits, running_jokes) and re-injects it into future system prompts so BakchodAI can reference past arcs naturally.
+- **Lock-In Mode**: `/lock-in` route. User enters task + minutes → `/api/lock-in` returns verdict + first-action + one-rule + 3–5 timed steps. In-app timer with start/pause/reset + step completion highlighting.
+- **Bhai Profile Card**: canvas-rendered shareable PNG aggregating localStorage stats (total aura, bakchodi level, roast resistance, avg cooked, last life grade, msgs, lock-ins, top mode, fave character, berozgaar certification). Download PNG + Share text buttons.
+- Share buttons on Cooked / Aura / Life / Court results (clipboard).
+- Personality prompt: reaction-before-punchline, gradual escalation, callback-aware.
 - All interactive elements carry `data-testid`.
 
 ## Prioritized backlog (P0/P1/P2)
-- P1: **Bhai Profile / Aura Card** — persistent stat sheet with shareable canvas PNG (biggest viral asset)
-- P1: **Lore & Callbacks** — remember arcs across sessions ("we're not repeating the Ex Arc again")
-- P1: Character unlocks (Tapri Bhai, Sharma Uncle, Toxic Dost, Fake Guru, Startup Bro) as chat sub-personas
-- P1: **Bhai Push / Lock-In Mode** — 45-min focus timer that switches personality to no-nonsense
-- P2: "Send this for me" multi-tone reply generator (nonchalant / flirty / unhinged / desi)
-- P2: Delusion Detector / Reality Check standalone tool
+- P1: "Send this for me" multi-tone reply generator (nonchalant / flirty / unhinged / desi)
+- P1: Delusion Detector / Reality Check standalone tool
+- P1: Streaming chat responses (currently non-streaming for MVP)
 - P2: Regional language packs (Delhi / Mumbai / Punjab / etc.)
 - P2: 2-player Roast Battle / Group Bhai room
-- P2: Streaming responses (currently non-streaming for MVP simplicity)
+- P2: Indian Household Simulator scenario mode
+- P2: Lore visibility page (show user their own arcs/traits)
+- P2: Better share: server-generated OG-image endpoint for real link previews
 
 ## Next tasks
 See P1 backlog above.

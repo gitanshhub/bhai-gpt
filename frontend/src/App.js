@@ -2,6 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "@/pages/Home";
 import Chat from "@/pages/Chat";
+import LockIn from "@/pages/LockIn";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/chat/:modeId" element={<Chat />} />
+          <Route path="/lock-in" element={<LockIn />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" theme="dark" />

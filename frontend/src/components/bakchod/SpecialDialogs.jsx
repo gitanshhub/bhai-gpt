@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SPECIAL } from "@/constants/testIds";
 import { api } from "@/lib/api";
+import { push, inc } from "@/lib/store";
 import { X, RefreshCw, Loader2, Share2, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +28,7 @@ export function LafdaDialog({ open, onClose }) {
     try {
       const res = await api.lafda({});
       setData(res);
+      inc("lafda_generated");
     } catch (e) {
       setError("Server ne bhi hath khade kar diye. Try again.");
     } finally {
@@ -103,6 +105,7 @@ export function CookedDialog({ open, onClose }) {
     try {
       const r = await api.cooked({ context: ctx });
       setResult(r);
+      push("cooked_history", { cooked_pct: r.cooked_pct, verdict: r.verdict });
     } catch (e) {
       setError(e?.response?.data?.detail || "Something broke bhai.");
     } finally { setLoading(false); }
@@ -216,6 +219,7 @@ export function AuraDialog({ open, onClose }) {
     try {
       const r = await api.aura({ context: ctx });
       setResult(r);
+      push("aura_history", { points: r.aura_points, verdict: r.verdict });
     } catch (e) {
       setError(e?.response?.data?.detail || "Something broke bhai.");
     } finally { setLoading(false); }

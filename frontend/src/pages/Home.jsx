@@ -5,7 +5,8 @@ import { HOME } from "@/constants/testIds";
 import { Button } from "@/components/ui/button";
 import { LafdaDialog, CookedDialog, AuraDialog } from "@/components/bakchod/SpecialDialogs";
 import { RateLifeDialog, BroCourtDialog } from "@/components/bakchod/ExtraDialogs";
-import { Flame, Skull, Sparkles, ClipboardList, Gavel } from "lucide-react";
+import { ProfileDialog } from "@/components/bakchod/ProfileDialog";
+import { Flame, Skull, Sparkles, ClipboardList, Gavel, Lock, UserCircle2 } from "lucide-react";
 
 const MARQUEE_ITEMS = [
   "KYA SCENE HAI, BHAI? 🇮🇳",
@@ -52,6 +53,7 @@ export default function Home() {
   const [auraOpen, setAuraOpen] = useState(false);
   const [lifeOpen, setLifeOpen] = useState(false);
   const [courtOpen, setCourtOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const chooseLang = (l) => { setLang(l); localStorage.setItem("bakchod_lang", l); };
 
@@ -140,51 +142,55 @@ export default function Home() {
           <div className="h-2 w-2 bg-[#00e5ff]" />
           <div className="font-mono text-xs uppercase tracking-[0.3em] text-white/60">Instant chaos</div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           <QuickBtn
             testid={HOME.quickLafda}
             onClick={() => setLafdaOpen(true)}
-            bg="#ff3b30"
-            fg="#fff"
+            bg="#ff3b30" fg="#fff"
             icon={<Flame size={22} />}
-            title="Lafda"
-            subtitle="Fake breaking news, real damage."
+            title="Lafda" subtitle="Fake breaking news."
           />
           <QuickBtn
             testid={HOME.quickCooked}
             onClick={() => setCookedOpen(true)}
-            bg="#f4f0e6"
-            fg="#0a0a0a"
+            bg="#f4f0e6" fg="#0a0a0a"
             icon={<Skull size={22} />}
-            title="Am I Cooked?"
-            subtitle="Situation diagnostic receipt."
+            title="Am I Cooked?" subtitle="Diagnostic receipt."
           />
           <QuickBtn
             testid={HOME.quickAura}
             onClick={() => setAuraOpen(true)}
-            bg="#00e5ff"
-            fg="#000"
+            bg="#00e5ff" fg="#000"
             icon={<Sparkles size={22} />}
-            title="Aura Check"
-            subtitle="Rate your last decision."
+            title="Aura Check" subtitle="Rate your decision."
           />
           <QuickBtn
             testid={HOME.quickLife}
             onClick={() => setLifeOpen(true)}
-            bg="#ffcc00"
-            fg="#000"
+            bg="#ffcc00" fg="#000"
             icon={<ClipboardList size={22} />}
-            title="Rate My Life"
-            subtitle="Full life audit. Brutally honest."
+            title="Rate My Life" subtitle="Full life audit."
           />
           <QuickBtn
             testid={HOME.quickCourt}
             onClick={() => setCourtOpen(true)}
-            bg="#141414"
-            fg="#ffcc00"
+            bg="#141414" fg="#ffcc00"
             icon={<Gavel size={22} />}
-            title="Bro Court"
-            subtitle="File a case. Get a verdict."
+            title="Bro Court" subtitle="File a case."
+          />
+          <QuickBtn
+            testid={HOME.quickLockin}
+            onClick={() => navigate("/lock-in")}
+            bg="#34c759" fg="#000"
+            icon={<Lock size={22} />}
+            title="Lock-In" subtitle="No bakchodi. Just work."
+          />
+          <QuickBtn
+            testid={HOME.quickProfile}
+            onClick={() => setProfileOpen(true)}
+            bg="#0a0a0a" fg="#00e5ff"
+            icon={<UserCircle2 size={22} />}
+            title="Bhai Profile" subtitle="Shareable card."
           />
         </div>
       </section>
@@ -202,6 +208,7 @@ export default function Home() {
       <AuraDialog open={auraOpen} onClose={() => setAuraOpen(false)} />
       <RateLifeDialog open={lifeOpen} onClose={() => setLifeOpen(false)} />
       <BroCourtDialog open={courtOpen} onClose={() => setCourtOpen(false)} />
+      <ProfileDialog open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }

@@ -1,0 +1,29 @@
+{
+  "summary": "Iteration 3 testing complete. Backend: 16/16 pytest tests pass — new /api/chat with characters (startup_bro replies contain startup jargon; sharma_uncle & default work); character-scoped GET/DELETE /api/chat/history verified (deleting startup_bro leaves tapri_bhai history intact); /api/lore returns correct schema for both empty and populated sessions (after 6 chats + 15s wait, schema-only asserted per brief); /api/lock-in returns verdict/steps/first_action/one_rule with steps summing near requested minutes (45), 400 on empty task, clamping works for minutes<5 and >180; regressions on /api/lafda, /api/cooked, /api/aura, /api/rate-life, /api/bro-court all green. Frontend: 7 quick-action cards render with correct testids; quick-lockin navigates to /lock-in; quick-profile opens profile-dialog with profile-canvas + profile-download; /lock-in full flow works (fill task+minutes, plan generates, timer '45:00' shown, steps rendered, start begins countdown 45:00→44:58, pause halts timer); chat-character dropdown lists all 4 personas (tapri_bhai, sharma_uncle, toxic_dost, startup_bro); selecting startup_bro updates trigger to '📈 Startup Bro'; sending a message produces AI reply with header 'STARTUP BRO · CHAI TAPRI' (uppercase via CSS text-transform; underlying JSX is 'Startup Bro · Chai Tapri' — verified visually in screenshot); /chat/roast still has chat-roast-harder button and clicking it produces another AI reply (2 → 4 messages); Home shows 6 mode-cards and mode-card-bakchod navigates to /chat/bakchod.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "ProfileDialog / other Dialogs", "issues": ["Console warning: 'Missing Description or aria-describedby for {DialogContent}'. Radix a11y warning — non-blocking but should be resolved by adding DialogDescription or aria-describedby to each DialogContent."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iteration3.py", "/app/test_reports/pytest/iteration3_results.xml"],
+  "action_items": [
+    "(Low priority) Add DialogDescription (or aria-describedby) to ProfileDialog and other DialogContent instances to silence Radix a11y console warnings."
+  ],
+  "critical_code_review_comments": [
+    "server.py:_refresh_lore uses len(docs) - last_msg_count freshness check, but last_msg_count is set to len(docs) which is capped at 30 (to_list(30)). Once past 30 total msgs, last_msg_count saturates at 30 and the delta will always be 0 → subsequent lore refreshes will short-circuit and never update. Consider using an absolute mongo count() or a monotonically increasing counter (e.g., max created_at) rather than the truncated to_list length.",
+    "server.py chat() rehydrates history from scoped_session and injects it verbatim into user context every call — for a long persona chat this bloats prompt tokens each turn (12 turns duplicated as text). LlmChat presumably has its own memory; the manual rehydration + LlmChat combo may double-count context.",
+    "prompts.py build_system_prompt does NOT truncate the lore block; user_traits/running_jokes/arcs come from LLM extraction and are already capped, but an unbounded system_prompt over many mode/character combinations is a token-cost concern.",
+    "LockIn.jsx computes progress as 1 - remaining/(minutes*60) but when user hits 'Reset' after stop() the plan is cleared — however remaining state and completed remain in prior values briefly; not user-facing but consider consolidating reset logic.",
+    "ProfileDialog draws canvas once on open; if user unlocks new milestones in a background tab before opening, stats reflect on open — fine. But there is no re-draw on prop change if `open` toggles false→true→false→true rapidly (setTimeout 50ms may leak). Minor."
+  ],
+  "updated_files": ["/app/backend/tests/test_iteration3.py"],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100% functional (only a non-blocking Radix a11y console warning)"},
+  "seed_data_creation": "Test-only chat sessions prefixed with 'TEST_' in db.chats and db.lore. Not cleaned up (dev DB).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All iteration-3 features (character personas, lore extract, lock-in, profile card) verified. If touching _refresh_lore, retest that a lore doc actually updates past 30 total messages (current impl saturates last_msg_count). For persona message header assertions, use textContent (not innerText) since CSS 'uppercase' transforms innerText — the DOM text is 'Startup Bro · Chai Tapri' but visually 'STARTUP BRO · CHAI TAPRI'.",
+  "rca of the issue": "N/A — no functional bugs found. The one console warning is a Radix UI a11y hint (DialogContent needs Description); not user-blocking."
+}
